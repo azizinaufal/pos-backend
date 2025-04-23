@@ -49,7 +49,7 @@ const findCustomer = async (req,res) =>{
         res.status(200).send({
             meta:{
                 success:true,
-                message:'Berhasil mengambil data customer',
+                message:'Berhasil mengambil data pelanggan',
             },
             data:customers,
             pagination:{
@@ -70,5 +70,85 @@ const findCustomer = async (req,res) =>{
   }
 };
 
-const customerController = {findCustomer};
+//CREATE CUSTOMER
+const createCustomer = async (req,res) =>{
+    try {
+        const customer = await prisma.customer.create({
+           data:{
+               name:req.body.name,
+               no_telp:req.body.no_telp,
+               address:req.body.address,
+               user_id:req.user.id,
+           }
+        });
+
+        res.status(200).send({
+           meta:{
+               success:true,
+               message:'Data customer berhasil dibuat',
+           },
+            data:customer,
+        });
+    }catch(err){
+        res.status(500).send({
+           meta:{
+               success:false,
+               message:"Terjadi kesalahan di server"
+           } ,
+            error:err.message || String(err),
+        });
+    }
+};
+
+//FIND CUSTOMER BY ID
+
+const findCustomerById = async (req,res) =>{
+  const {id} = req.params;
+  const userId = req.user?.id;
+
+  try {
+      const customer = await prisma.customer.findUnique({
+          where:{
+              id:Number(id),
+              user_id:userId,
+          },
+          select: {
+              id:true,
+              name:true,
+              no_telp:true,
+              address:true,
+              created_at:true,
+              updated_at:true,
+              user_id:true
+
+          },
+      });
+
+      if(!customer){
+          res.status(404).send({
+             meta:{
+                 success:false,
+                 message:`Pelanggan dengan ID:${id} tidak ada`
+             } ,
+          });
+      }
+      res.status(200).send({
+         meta:{
+             success:true,
+             message:`Berhasil mengambil pelanggan dengan ID:${id}`,
+         },
+          data:customer,
+      });
+  }catch(err){
+      res.status(500).send({
+         meta:{
+             success:false,
+             message:"Terjadi kesalahan di server"
+         },
+          error:err.message || String(err),
+      });
+  }
+};
+
+const customerController = {findCustomer,createCustomer,findCustomerById};
 export {customerController};

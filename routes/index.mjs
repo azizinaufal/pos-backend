@@ -1,5 +1,11 @@
 import express from 'express';
-import {validateCategory, validateLogin, validateProduct, validateUser} from "../utils/validators/index.mjs";
+import {
+    validateCategory,
+    validateCustomer,
+    validateLogin,
+    validateProduct,
+    validateUser
+} from "../utils/validators/index.mjs";
 import {handleValidationErrors, upload, verifyToken} from "../middlewares/index.mjs";
 import {LoginController} from "../controllers/LoginController.mjs";
 import {UserController} from "../controllers/UserController.mjs";
@@ -40,6 +46,8 @@ const routes = [
 
     //CUSTOMER ROUTE
     {method:'get',path:'/customers', middlewares: [verifyToken], handler:customerController.findCustomer},
+    {method:'post', path: '/customers', middlewares: [verifyToken,validateCustomer,handleValidationErrors], handler:customerController.createCustomer},
+    {method:'get', path: '/customers/:id', middlewares: [verifyToken], handler:customerController.findCustomerById},
 ];
 
 //helper
