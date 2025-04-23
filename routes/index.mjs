@@ -48,6 +48,9 @@ const routes = [
     {method:'get',path:'/customers', middlewares: [verifyToken], handler:customerController.findCustomer},
     {method:'post', path: '/customers', middlewares: [verifyToken,validateCustomer,handleValidationErrors], handler:customerController.createCustomer},
     {method:'get', path: '/customers/:id', middlewares: [verifyToken], handler:customerController.findCustomerById},
+    {method:'put', path:'/customers/:id', middlewares: [verifyToken,validateCustomer,handleValidationErrors], handler:customerController.updateCustomer},
+    {method:'delete', path: '/customers/:id', middlewares: [verifyToken], handler:customerController.deleteCustomer},
+    {method:'get', path:'/customers-all', middlewares: [verifyToken], handler:customerController.allCustomers}
 ];
 
 //helper
