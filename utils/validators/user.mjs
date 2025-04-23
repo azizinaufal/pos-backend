@@ -27,11 +27,13 @@ const validateUser = [
             return true;
         }),
 
-    body(password).if((value,{req})=>req.method==='POST')
+    body('password').if((value,{req})=>req.method==='POST')
         .notEmpty().withMessage('Password wajib diisi')
         .isLength({min:6}).withMessage('Password minimal berisi 6 karakter'),
-    body('password').if((value,{req})=>{req.method==='PUT'})
-        .optional(),
+    body('password')
+        .if((value, { req }) => req.method === 'PUT')
+        .optional()
+        .isLength({ min: 6 }).withMessage('Password minimal berisi 6 karakter')
 ];
 
 export {validateUser};

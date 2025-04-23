@@ -2,18 +2,23 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 
 const verifyToken = (req,res,next)=>{
-    const token = req.headers['authorization'];
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
     if(!token){
         return res.status(401).json({message:'Tidak terautentikasi'});
     }
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
         if(err){
             return res.status(401).json({message:"Token tidak valid"});
-        }else {
-            req.userId = decoded.id;
-            next();
         }
+        req.user = {
+            id: decoded.id,
+            email: decoded.email,
+
+        };
+
+        next();
     });
 };
 
-export default verifyToken;
+export {verifyToken};
