@@ -1,6 +1,6 @@
 import {query} from 'express-validator';
 
-const validatorSales = [
+const validateSales = [
     query('start_date')
         .notEmpty().withMessage('Tanggal awal wajib diisi')
         .isISO8601().withMessage('Tanggal awal harus valid'),
@@ -9,4 +9,4 @@ const validatorSales = [
         .isISO8601().withMessage('Tanggal akhir harus valid'),
 ];
 
-export {validatorSales};
+export {validateSales};

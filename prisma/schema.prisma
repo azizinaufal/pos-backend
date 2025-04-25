@@ -25,6 +25,7 @@ model User{
   products Product[]
   categories  Category[]
   customers Customer[]
+  profits Profit[]
 
   @@map("users")
 }
@@ -131,8 +132,10 @@ model Profit {
   id Int @id @default(autoincrement())
   transaction_id Int
   total Int
+  user_id Int
   created_at DateTime @default(now())
   transaction Transaction @relation(fields: [transaction_id],references: [id],onDelete: Cascade)
+  cashier User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("profits")
 }

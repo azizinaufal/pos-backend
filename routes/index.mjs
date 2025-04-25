@@ -1,10 +1,11 @@
 import express from 'express';
 import {
+    validateCart,
     validateCategory,
     validateCustomer,
     validateLogin,
-    validateProduct,
-    validateUser
+    validateProduct, validateTransaction,
+    validateUser, validateSales, validatorProfit
 } from "../utils/validators/index.mjs";
 import {handleValidationErrors, upload, verifyToken} from "../middlewares/index.mjs";
 import {LoginController} from "../controllers/LoginController.mjs";
@@ -12,6 +13,12 @@ import {UserController} from "../controllers/UserController.mjs";
 import {categoryController} from "../controllers/CategoryController.mjs";
 import {productController} from "../controllers/ProductController.mjs";
 import {customerController} from "../controllers/CustomerController.mjs";
+import {cartController} from "../controllers/CartController.mjs";
+import {transactionController} from "../controllers/TransactionController.mjs";
+import {salesController} from "../controllers/SalesController.mjs";
+import {profitController} from "../controllers/ProfitController.mjs";
+import {dashboardController} from "../controllers/DashboardController.mjs";
+
 
 const router = express.Router();
 
@@ -50,7 +57,27 @@ const routes = [
     {method:'get', path: '/customers/:id', middlewares: [verifyToken], handler:customerController.findCustomerById},
     {method:'put', path:'/customers/:id', middlewares: [verifyToken,validateCustomer,handleValidationErrors], handler:customerController.updateCustomer},
     {method:'delete', path: '/customers/:id', middlewares: [verifyToken], handler:customerController.deleteCustomer},
-    {method:'get', path:'/customers-all', middlewares: [verifyToken], handler:customerController.allCustomers}
+    {method:'get', path:'/customers-all', middlewares: [verifyToken], handler:customerController.allCustomers},
+
+    //CART ROUTE
+    {method:'get',path:'/carts', middlewares: [verifyToken], handler:cartController.findCarts},
+    {method:'post', path:'/carts', middlewares: [verifyToken,validateCart,handleValidationErrors], handler:cartController.createCart},
+    {method: 'delete', path: '/carts/:id', middlewares: [verifyToken], handler:cartController.deleteCart},
+
+    //TRANSACTION ROUTE
+    {method:'post', path:'/transactions', middlewares: [verifyToken,validateTransaction,handleValidationErrors], handler:transactionController.createTransaction},
+    {method:'get', path:'/transactions', middlewares: [verifyToken], handler:transactionController.findTransactionByInvoice},
+
+    //SALES ROUTE
+    {method: 'get', path: '/sales', middlewares: [verifyToken,validateSales, handleValidationErrors], handler:salesController.filterSales},
+    {method: 'get', path: '/sales/export', middlewares: [verifyToken,validateSales,handleValidationErrors], handler:salesController.exportSales},
+
+    //PROFIT ROUTE
+    {method:'get', path: '/profits', middlewares: [verifyToken,validatorProfit,handleValidationErrors], handler:profitController.filterProfit},
+    {method:'get', path:'/profits/export', middlewares: [verifyToken,validatorProfit,handleValidationErrors], handler:profitController.exportProfit},
+
+    //DASHBOARD ROUTE
+    {method:'get', path:'/dashboard', middlewares: [verifyToken], handler:dashboardController.getDashboardData},
 ];
 
 //helper
