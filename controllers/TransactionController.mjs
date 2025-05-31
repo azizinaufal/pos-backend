@@ -5,6 +5,7 @@ import {randomInvoice} from "../utils/generateRandomInvoice.mjs";
 
 const createTransaction = async (req, res) => {
   const userId = req.user?.id;
+
   try {
       const invoice = randomInvoice();
 
@@ -44,6 +45,7 @@ const createTransaction = async (req, res) => {
              product: true,
           },
       });
+      const stockWarnings = [];
 
       for(const cart of carts) {
           const price = parseFloat(cart.price);
@@ -79,6 +81,19 @@ const createTransaction = async (req, res) => {
               },
           });
 
+          const productBefore = await prisma.product.findUnique({
+              where: {
+                  id: cart.product_id,
+              },
+              select: {
+                  stock: true,
+                  title: true,
+              },
+          });
+
+
+
+
           await prisma.product.update({
               where: {
                   id: cart.product_id,
@@ -90,6 +105,7 @@ const createTransaction = async (req, res) => {
                   },
               },
           });
+
       }
 
             await prisma.cart.deleteMany({
@@ -102,7 +118,8 @@ const createTransaction = async (req, res) => {
                    success:true,
                    message: `Transaksi berhasil dibuat`
                },
-                date:transaction
+                data:transaction,
+                warnings: stockWarnings.length > 0 ? stockWarnings : undefined,
             });
 
   }catch (err){

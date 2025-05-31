@@ -5,7 +5,7 @@ import {
     validateCustomer,
     validateLogin,
     validateProduct, validateTransaction,
-    validateUser, validateSales, validatorProfit
+    validateUser, validateSales, validatorProfit, validateUpdateUser, validateRegister
 } from "../utils/validators/index.mjs";
 import {handleValidationErrors, upload, verifyToken} from "../middlewares/index.mjs";
 import {LoginController} from "../controllers/LoginController.mjs";
@@ -18,20 +18,24 @@ import {transactionController} from "../controllers/TransactionController.mjs";
 import {salesController} from "../controllers/SalesController.mjs";
 import {profitController} from "../controllers/ProfitController.mjs";
 import {dashboardController} from "../controllers/DashboardController.mjs";
+import {registerController} from "../controllers/RegisterController.mjs";
 
 
 const router = express.Router();
 
 const routes = [
+    //REGISTER ROUTE
+
+    {method:'post', path:'/register', middlewares: [validateRegister,handleValidationErrors],handler:registerController.registerUser},
+
     //LOGIN ROUTE
-    {method:'post', path:'/login', middlewares:[validateLogin,handleValidationErrors], handler:LoginController.login
-    },
+    {method:'post', path:'/login', middlewares:[validateLogin,handleValidationErrors], handler:LoginController.login},
 
     //USER ROUTE
     {method:'get',path:'/users',middlewares:[verifyToken],handler:UserController.findUser},
     {method:'post', path:'/users', middlewares:[verifyToken,validateUser,handleValidationErrors], handler:UserController.createUser},
     {method:'get', path:'/users/:id', middlewares: [verifyToken], handler:UserController.findUserById},
-    {method:'put', path:'/users/:id', middlewares: [verifyToken,validateUser,handleValidationErrors], handler:UserController.updateUser},
+    {method:'put', path:'/users/:id', middlewares: [verifyToken,validateUpdateUser,handleValidationErrors], handler:UserController.updateUser},
     {method:'delete', path:'/users/:id', middlewares: [verifyToken], handler:UserController.deleteUser},
 
     //CATEGORY ROUTE

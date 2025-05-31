@@ -10,11 +10,13 @@ const findUser = async (req,res)=>{
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
         const skip = (page-1) * limit;
+        const usreId = req.user?.id;
 
         const search = req.query.search || '';
 
         const user = await prisma.user.findMany({
             where: {
+                id: usreId,
                 name:{
                     contains: search,
                 }
@@ -98,6 +100,7 @@ const createUser = async (req,res)=>{
 //FIND USER BY ID
 const findUserById = async (req,res)=>{
     const {id} = req.params;
+
     try {
         const user = await prisma.user.findUnique({
             where: {

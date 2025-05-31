@@ -1,4 +1,4 @@
-import {validateLogin} from './auth.mjs';
+import {validateLogin,validateUpdateUser} from './auth.mjs';
 import {validateUser} from './user.mjs';
 import {validateCategory} from "./category.mjs";
 import {validateProduct} from "./product.mjs";
@@ -7,6 +7,7 @@ import {validateCart} from "./cart.mjs";
 import {validateTransaction} from "./transaction.mjs";
 import {validateSales} from "./sale.mjs";
 import {validatorProfit} from "./profit.mjs";
+import {validateRegister} from "./register.mjs";
 
 export  {
     validateLogin,
@@ -17,5 +18,7 @@ export  {
     validateCart,
     validatorProfit,
     validateTransaction,
-    validateSales
+    validateSales,
+    validateUpdateUser,
+    validateRegister
 };

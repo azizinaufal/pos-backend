@@ -73,7 +73,7 @@ const filterSales = async (req,res,next) => {
              message: `Data penjualan dari ${req.query.start_date} hingga ${req.query.end_date} berhasil diambil`
 
          },
-          date:{
+          data:{
              sales:sales,
               total:total._sum.grand_total || 0,
           },

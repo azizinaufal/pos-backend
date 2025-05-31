@@ -1,7 +1,7 @@
 import express from 'express';
 import {PrismaClient} from '@prisma/client';
 import {subDays, format} from 'date-fns';
-import {parse} from "dotenv";
+
 const prisma = new PrismaClient();
 
 const getDashboardData = async (req, res) => {
@@ -105,19 +105,45 @@ const getDashboardData = async (req, res) => {
       });
 
       const productsLimitStock = await prisma.product.findMany({
-         where:{
-             user_id:userId,
-             stock:{
-                 lte:10,
-             },
-         },
-          include:{
-             category:true,
+          where: {
+              user_id: userId,
+              stock: {
+                  lte: 10,
+              },
+          },
+          include: {
+              category: true,
           },
       });
+      const productsLimitStockWithWarning = productsLimitStock.map(product => {
+          let warning = '';
+          if (product.stock === 0) {
+              warning = 'Stok habis';
+          }
+          else if (product.stock < 0) {
+              warning = 'Stok mines, Segera Belanja';
+          }else if (product.stock <= 5) {
+              warning = 'Stok hampir habis';
+          }
+          else {
+              warning = 'Stok menipis';
+          }
+
+          return {
+              ...product,
+              warning,
+          };
+      });
+
+
 
       const chartBestProducts = await prisma.transactionDetail.groupBy({
          by:['product_id'],
+          where:{
+            transaction:{
+                cashier_id:userId
+            }
+          },
           _sum:{
              qty:true,
           },
@@ -171,7 +197,7 @@ const getDashboardData = async (req, res) => {
                   profits_date,
                   profits_total
               },
-              products_limit_stock:productsLimitStock,
+              products_limit_stock: productsLimitStockWithWarning,
               best_selling_products:bestSellingProducts,
           },
       });

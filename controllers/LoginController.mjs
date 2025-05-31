@@ -20,25 +20,24 @@ const login = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({
-                success: false,
                 message: "Pengguna tidak terdaftar",
             });
         }
+
 
         const validPassword = await bcrypt.compare(
             req.body.password,
             user.password
         );
-
         if (!validPassword) {
             return res.status(401).json({
-                success: false,
-                message: "Password tidak valid",
+                message: "Password Salah ",
             });
         }
 
+
         const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
-            expiresIn: "1h",
+            expiresIn: "6h",
         });
 
         const { password, ...userWithoutPassword } = user;

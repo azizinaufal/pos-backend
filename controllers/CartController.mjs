@@ -63,6 +63,7 @@ const findCarts = async (req,res) =>{
 //CREATE CART
  const createCart = async (req,res) =>{
      const userId=  req.user?.id;
+
    try {
        const product = await prisma.product.findUnique({
           where:{

@@ -26,3 +26,6 @@ build/
 # Local testing / uploads
 uploads/
 testApi/
+
+uploads/*
+!uploads/.gitkeep

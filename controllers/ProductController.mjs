@@ -63,7 +63,7 @@ const findProducts = async (req, res) => {
          },
           data:products,
           pagination:{
-              currenPage:page,
+              currentPage:page,
               totalPages:totalPages,
               perPage:limit,
               total:totalProducts,
@@ -378,7 +378,7 @@ const findProductByBarcode = async (req,res)=>{
   try {
       const products = await prisma.product.findMany({
          where:{
-             barcode:req.body.barcode,
+             title:req.body.title,
              user_id:userId
          },
           select:{
@@ -409,14 +409,14 @@ const findProductByBarcode = async (req,res)=>{
           return res.status(404).send({
               meta:{
                   success:false,
-                  message:`Product dengan barcode ${req.params.barcode} tidak ditemukan`,
+                  message:`Product dengan nama ${req.params.title} tidak ditemukan`,
               },
           });
       }
       res.status(200).send({
          meta:{
              success:true,
-             message:"Berhasil mengambil produk berdasarkan barcode"
+             message:"Berhasil mengambil produk berdasarkan nama"
          } ,
           data:products,
       });
