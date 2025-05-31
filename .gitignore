@@ -24,7 +24,6 @@ dist/
 build/
 
 # Local testing / uploads
-uploads/
 testApi/
 
 uploads/*
