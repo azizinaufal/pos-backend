@@ -5,7 +5,7 @@ import {
     validateCustomer,
     validateLogin,
     validateProduct, validateTransaction,
-    validateUser, validateSales, validatorProfit, validateUpdateUser, validateRegister
+    validateUser, validateSales, validatorProfit, validateUpdateUser, validateRegister,validatorSupplier, validateDebit
 } from "../utils/validators/index.mjs";
 import {handleValidationErrors, upload, verifyToken} from "../middlewares/index.mjs";
 import {LoginController} from "../controllers/LoginController.mjs";
@@ -19,6 +19,8 @@ import {salesController} from "../controllers/SalesController.mjs";
 import {profitController} from "../controllers/ProfitController.mjs";
 import {dashboardController} from "../controllers/DashboardController.mjs";
 import {registerController} from "../controllers/RegisterController.mjs";
+import {supplierController} from "../controllers/SupplierController.mjs";
+import {debitController} from "../controllers/DebitController.mjs";
 
 
 const router = express.Router();
@@ -54,6 +56,7 @@ const routes = [
     {method:'delete', path: '/products/:id', middlewares: [verifyToken], handler:productController.deleteProduct},
     {method:'get', path: '/products-by-category/:id', middlewares: [verifyToken], handler:productController.findproductByCategoryId},
     {method: 'post', path: '/products-by-barcode', middlewares: [verifyToken], handler:productController.findProductByBarcode},
+    {method: 'get', path: '/products-all', middlewares: [verifyToken], handler:productController.getAllProducts},
 
     //CUSTOMER ROUTE
     {method:'get',path:'/customers', middlewares: [verifyToken], handler:customerController.findCustomer},
@@ -63,10 +66,20 @@ const routes = [
     {method:'delete', path: '/customers/:id', middlewares: [verifyToken], handler:customerController.deleteCustomer},
     {method:'get', path:'/customers-all', middlewares: [verifyToken], handler:customerController.allCustomers},
 
+    //SUPPLIER ROUTE
+    {method: 'get', path:'/suppliers', middlewares: [verifyToken], handler:supplierController.findSuppliers},
+    {method: 'post', path:'/suppliers', middlewares: [verifyToken,validatorSupplier,handleValidationErrors], handler:supplierController.createSupplier},
+    {method:'get', path: '/suppliers/:id', middlewares: [verifyToken], handler:supplierController.findSupplierById},
+    {method: 'put', path:'/suppliers/:id', middlewares: [verifyToken,validatorSupplier,handleValidationErrors], handler:supplierController.updateSupplier},
+    {method: 'delete', path:'/suppliers/:id', middlewares: [verifyToken], handler:supplierController.deleteSupplier},
+    {method: 'get', path:'/suppliers-all', middlewares: [verifyToken], handler:supplierController.allSuppliers},
+
+
     //CART ROUTE
     {method:'get',path:'/carts', middlewares: [verifyToken], handler:cartController.findCarts},
     {method:'post', path:'/carts', middlewares: [verifyToken,validateCart,handleValidationErrors], handler:cartController.createCart},
     {method: 'delete', path: '/carts/:id', middlewares: [verifyToken], handler:cartController.deleteCart},
+
 
     //TRANSACTION ROUTE
     {method:'post', path:'/transactions', middlewares: [verifyToken,validateTransaction,handleValidationErrors], handler:transactionController.createTransaction},
@@ -79,6 +92,11 @@ const routes = [
     //PROFIT ROUTE
     {method:'get', path: '/profits', middlewares: [verifyToken,validatorProfit,handleValidationErrors], handler:profitController.filterProfit},
     {method:'get', path:'/profits/export', middlewares: [verifyToken,validatorProfit,handleValidationErrors], handler:profitController.exportProfit},
+
+    //DEBIT ROUTE
+    {method: 'post', path:'/debits', middlewares: [verifyToken,validateDebit,handleValidationErrors],handler:debitController.createDebit },
+    {method: 'get', path:'/debits', middlewares: [verifyToken],handler:debitController.findDebits },
+    {method: 'get', path:'/debits-all', middlewares: [verifyToken],handler:debitController.getDebitAll },
 
     //DASHBOARD ROUTE
     {method:'get', path:'/dashboard', middlewares: [verifyToken], handler:dashboardController.getDashboardData},

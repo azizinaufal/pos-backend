@@ -5,114 +5,81 @@ import {randomInvoice} from "../utils/generateRandomInvoice.mjs";
 
 const createTransaction = async (req, res) => {
   const userId = req.user?.id;
+    const { customer_id, cash, discount, grand_total } = req.body;
 
   try {
-      const invoice = randomInvoice();
 
-      const cashierId = userId;
-      const customerId = parseInt(req.body.customer_id) || null;
-      const cash = parseInt(req.body.cash);
-      const change = parseInt(req.body.change);
-      const discount = parseInt(req.body.discount);
-      const grandTotal = parseInt(req.body.grand_total);
+      const transaction = await prisma.$transaction(async (tx) => {
+         const carts = await tx.cart.findMany({
+             where:{
+                 cashier_id:userId,
+             },
+             include: {
+                 product: true
+             },
+         }) ;
 
-      if(isNaN(customerId) || isNaN(cash) || isNaN(change) || isNaN(discount) || isNaN(grandTotal) ) {
-            res.status(400).send({
-               meta:{
-                   success:false,
-                   message:`Data input tidak valid, Silahkan periksa kembali dan pastikan berupa angka`,
-               },
-            });
-      }
+         if(carts.length===0){
+             throw new Error("Keranjang belanja masih kosong");
+         }
 
-      const transaction = await prisma.transaction.create({
-         data:{
-             cashier_id : cashierId,
-             customer_id : customerId,
-             invoice : invoice,
-             cash : cash,
-             change : change,
-             discount : discount,
-             grand_total : grandTotal,
-         },
-      });
+         const newTransaction = await tx.transaction.create({
+            data:{
+                cashier_id:userId,
+                customer_id:customer_id?parseInt(customer_id):null,
+                invoice:randomInvoice(),
+                cash:parseFloat(cash),
+                change:parseFloat(cash)-parseFloat(grand_total),
+                discount:discount?parseFloat(discount):0,
+                grand_total: parseFloat(grand_total),
+            }
+         });
 
-      const carts = await prisma.cart.findMany({
-         where:{
-             cashier_id: cashierId,
-         },
-          include:{
-             product: true,
-          },
+
+         for (const cart of carts){
+             if(cart.product.stock < cart.qty){
+                 throw new Error(`Stok produk ${cart.product.title} tidak mencukupi. Sisa stok: ${cart.product.stock}`);
+             }
+
+             await tx.transactionDetail.create({
+                 data:{
+                     transaction_id: newTransaction.id,
+                     product_id:cart.product.id,
+                     qty:cart.qty,
+                     price:cart.price,
+                 }
+             });
+
+             const profitPerItem = (cart.product.sell_price - cart.product.buy_price) *cart.qty;
+             if(profitPerItem>0){
+                 await tx.profit.create({
+                     data:{
+                         transaction_id: newTransaction.id,
+                         total:profitPerItem,
+                         user_id:userId,
+                     }
+                 });
+             }
+
+             await tx.product.update({
+                where:{
+                    id: cart.product.id,
+                },
+                 data:{
+                    stock: {
+                        decrement:cart.qty
+                    }
+                 },
+             });
+         }
+         await tx.cart.deleteMany({
+            where:{
+                cashier_id:userId,
+            }
+         });
+          return newTransaction;
       });
       const stockWarnings = [];
-
-      for(const cart of carts) {
-          const price = parseFloat(cart.price);
-
-          if (cart.product.user_id !== userId) {
-              return res.status(403).send({
-                  meta: {
-                      success: false,
-                      message: `Akses ditolak. Produk dalam keranjang bukan milik pengguna ini.`,
-                  },
-              });
-          }
-
-
-          await prisma.transactionDetail.create({
-              data: {
-                  transaction_id: transaction.id,
-                  product_id: cart.product_id,
-                  qty: cart.qty,
-                  price: price,
-              },
-          });
-
-          const totalBuyPrice = cart.product.buy_price * cart.qty;
-          const totalSellPrice = cart.product.sell_price * cart.qty;
-          const profits = totalSellPrice - totalBuyPrice;
-
-          await prisma.profit.create({
-              data: {
-                  transaction_id: transaction.id,
-                  total: profits,
-                  user_id : userId,
-              },
-          });
-
-          const productBefore = await prisma.product.findUnique({
-              where: {
-                  id: cart.product_id,
-              },
-              select: {
-                  stock: true,
-                  title: true,
-              },
-          });
-
-
-
-
-          await prisma.product.update({
-              where: {
-                  id: cart.product_id,
-                  user_id: userId,
-              },
-              data: {
-                  stock: {
-                      decrement: cart.qty
-                  },
-              },
-          });
-
-      }
-
-            await prisma.cart.deleteMany({
-                where:{
-                    cashier_id: cashierId,
-                },
-            });
             res.status(200).send({
                meta:{
                    success:true,

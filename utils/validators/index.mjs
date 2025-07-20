@@ -8,6 +8,8 @@ import {validateTransaction} from "./transaction.mjs";
 import {validateSales} from "./sale.mjs";
 import {validatorProfit} from "./profit.mjs";
 import {validateRegister} from "./register.mjs";
+import {validatorSupplier} from "./supplier.mjs";
+import {validateDebit} from "./debit.mjs";
 
 export  {
     validateLogin,
@@ -20,5 +22,7 @@ export  {
     validateTransaction,
     validateSales,
     validateUpdateUser,
-    validateRegister
+    validateRegister,
+    validatorSupplier,
+    validateDebit
 };

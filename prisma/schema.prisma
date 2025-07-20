@@ -26,6 +26,8 @@ model User{
   categories  Category[]
   customers Customer[]
   profits Profit[]
+  suppliers Supplier[]
+  debits Debit[]
 
   @@map("users")
 }
@@ -61,6 +63,7 @@ model Product{
   transaction_details TransactionDetail[]
   carts Cart[]
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  debit_details DebitDetail[]
 
   @@map("products")
 }
@@ -138,4 +141,47 @@ model Profit {
   cashier User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("profits")
+}
+
+model Supplier{
+  id  Int @id @default(autoincrement())
+  user_id Int
+  name String
+  no_telp String
+  address String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user User @relation(fields: [user_id],references: [id], onDelete: Cascade)
+  debits Debit[]
+
+  @@map("suppliers")
+}
+
+model Debit{
+  id Int @id @default(autoincrement())
+  user_id Int
+  supplier_id Int
+  invoice String
+  grand_total Float
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  supplier Supplier @relation(fields: [supplier_id], references: [id], onDelete: Cascade)
+  debit_details DebitDetail[]
+
+  @@map("debits")
+}
+
+model DebitDetail{
+  id Int @id  @default(autoincrement())
+  debit_id Int
+  product_id Int
+  qty Int
+  price Float
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  debit Debit @relation(fields: [debit_id], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@map("debit_details")
 }

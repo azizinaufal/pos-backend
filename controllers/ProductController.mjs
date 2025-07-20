@@ -80,6 +80,38 @@ const findProducts = async (req, res) => {
   }
 };
 
+const getAllProducts = async (req, res) => {
+    try {
+        const products = await prisma.product.findMany({
+            where: {
+                user_id: req.user.id,
+            },
+            select: {
+                id: true,
+                title: true,
+                sell_price:true,
+            },
+            orderBy:{ id: "desc"},
+        });
+
+        res.status(200).send({
+            meta:{
+                success: true,
+                message:"Berhasil mendapat data produk ",
+            },
+            data:products,
+        })
+    }catch(err) {
+        res.status(500).send({
+            meta:{
+                success:false,
+                message:"Terjadi kesalahan di server"
+            },
+            error:err.message,
+        })
+    }
+}
+
 //CREATE PRODUCT
 const createProduct = async (req, res) => {
   try {
@@ -88,9 +120,9 @@ const createProduct = async (req, res) => {
              barcode:req.body.barcode,
              title:req.body.title,
              description:req.body.description,
-             buy_price:parseInt(req.body.buy_price),
+             buy_price:0,
              sell_price:parseInt(req.body.sell_price),
-             stock:parseInt(req.body.stock),
+             stock:0,
              image:req.file.path,
              category_id:parseInt(req.body.category_id),
              user_id:req.user.id,
@@ -430,5 +462,5 @@ const findProductByBarcode = async (req,res)=>{
         });
   }
 };
-const productController = {findProducts, createProduct, findProductById, updateProduct,deleteProduct,findproductByCategoryId, findProductByBarcode};
+const productController = {findProducts, getAllProducts,createProduct, findProductById, updateProduct,deleteProduct,findproductByCategoryId, findProductByBarcode};
 export {productController};

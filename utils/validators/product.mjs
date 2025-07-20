@@ -44,9 +44,20 @@ const validateProduct = [
             }
             return true;
         }),
-    body('buy_price').notEmpty().withMessage('Harga beli wajib diisi'),
-    body('sell_price').notEmpty().withMessage('Harga jual wajib diisi'),
-    body('stock').notEmpty().withMessage('Stok jual wajib diisi')
+    body('buy_price').optional(),
+    body('sell_price').notEmpty().withMessage('Harga jual wajib diisi')
+        .isFloat({ gt: 0 }).withMessage('Harga jual harus berupa angka positif')
+        .custom((sellPriceValue,{req})=>{
+            const buyPrice = parseFloat(req.body.buy_price);
+            const sellPrice = parseFloat(sellPriceValue);
+
+            if(sellPrice<buyPrice){
+                throw new Error('Harga jual tidak boleh kurang dari harga beli');
+            }
+
+            return true;
+        }),
+    body('stock').optional()
 ];
 
 export {validateProduct};

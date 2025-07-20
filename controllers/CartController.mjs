@@ -62,14 +62,21 @@ const findCarts = async (req,res) =>{
 
 //CREATE CART
  const createCart = async (req,res) =>{
-     const userId=  req.user?.id;
-
+     const userId = req.user?.id;
    try {
        const product = await prisma.product.findUnique({
           where:{
               id: parseInt(req.body.product_id),
           },
+           select:{
+              stock:true,
+               user_id:true,
+               sell_price:true,
+               title:true
+           }
        });
+
+
 
        if(!product){
            return res.status(400).send({
@@ -87,12 +94,23 @@ const findCarts = async (req,res) =>{
                },
            });
        }
+
+       if(product.stock<=0){
+           return res.status(400).send({
+               meta: { success: false, message: `Stok untuk produk ${product.title} telah habis.` },
+           });
+       }
         const existingCart = await prisma.cart.findFirst({
            where:{
                product_id : parseInt(req.body.product_id),
                cashier_id:userId
            },
         });
+       if (existingCart && product.stock <= existingCart.qty) {
+           return res.status(400).send({
+               meta: { success: false, message: `Stok untuk produk "${product.title}" tidak mencukupi untuk ditambah lagi.` },
+           });
+       }
        if (existingCart){
            const updateCart = await prisma.cart.update({
               where:{
