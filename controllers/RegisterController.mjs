@@ -5,6 +5,10 @@ import {PrismaClient} from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+const helloRegister = async (req, res) => {
+    res.status(200).send('Halo!');
+}
+
 const registerUser = async (req,res)=>{
     try {
         const existingUser = await prisma.user.findFirst({
@@ -54,5 +58,5 @@ const registerUser = async (req,res)=>{
     }
 };
 
-const registerController = {registerUser};
+const registerController = {registerUser,helloRegister};
 export {registerController};

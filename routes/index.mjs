@@ -26,6 +26,9 @@ import {debitController} from "../controllers/DebitController.mjs";
 const router = express.Router();
 
 const routes = [
+
+    {method:'get', path:'/hello', middlewares: [verifyToken()],handler:registerController.helloRegister},
+
     //REGISTER ROUTE
 
     {method:'post', path:'/register', middlewares: [validateRegister,handleValidationErrors],handler:registerController.registerUser},
