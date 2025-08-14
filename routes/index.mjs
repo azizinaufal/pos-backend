@@ -27,7 +27,7 @@ const router = express.Router();
 
 const routes = [
 
-    {method:'get', path:'/hello', middlewares: [verifyToken()],handler:registerController.helloRegister},
+    // {method:'get', path:'/hello', middlewares: [verifyToken],handler:registerController.helloRegister},
 
     //REGISTER ROUTE
 

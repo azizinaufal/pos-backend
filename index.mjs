@@ -14,10 +14,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-app.use(cors());
+const allowedOrigins = ['https://kasirin.me', 'https://csr.kasirin.me','https://ssr.kasirin.me'];
+const corsOptions={
+    origin:function(origin,callback){
+        if(allowedOrigins.indexOf(origin)!==-1 || !origin){
+            callback(null, true);
+        }else{
+            callback(new Error(`Akses ditolak kebijakan CORS`));
+        }
+    },
+    method:"GET, POST, PUT, DELETE, PATCH, HEAD",
+    allowedHeaders: "Content-Type, Authorization"
+};
+app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 app.use('/api',router);
 const port=3000;
